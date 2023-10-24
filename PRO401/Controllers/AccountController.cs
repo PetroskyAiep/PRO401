@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -11,36 +13,46 @@ using System.Text;
 
 namespace PRO401.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
         private UserManager<Usuario> _userManager;
         private IConfiguration _configuration;
         private SignInManager<Usuario> _signInManager;
+        private readonly IMapper _mapper;
 
-        public AccountController(UserManager<Usuario> userManager,  IConfiguration configuration, SignInManager<Usuario> signInManager)
+        public AccountController(UserManager<Usuario> userManager,  IConfiguration configuration, SignInManager<Usuario> signInManager, IMapper mapper)
         {
             _userManager = userManager;
             _configuration = configuration;
             _signInManager = signInManager;
+            _mapper = mapper;
         }
 
-
         [HttpPost("Register")]
-        public async Task<ActionResult<AuthenticationResponse>> Register(UserCredentials userCredentials,  UsuarioCreateDTO usuario)
+        public async Task<ActionResult<AuthenticationResponse>> Register(UsuarioFormDTO userForm)
+
         {
-            var user = new Usuario { 
-                UserName = userCredentials.Email, 
-                Email = userCredentials.Email, 
-                Run = usuario.Run,
-                Nombres = usuario.Nombres,
-                Apellidos = usuario.Apellidos,
-                FechaNacimiento = usuario.FechaNacimiento,
-                ComunaResidenciaId = usuario.ComunaResidenciaId,
-                ComunaTrabajoId = usuario.ComunaTrabajoId,
-                EstadoRegistroId = usuario.EstadoRegistroId,
-                TipoTrabajoId = usuario.TipoTrabajoId,
-    };
-            var result = await _userManager.CreateAsync(user, userCredentials.Password);
+            var userCredentials = _mapper.Map<UserCredentials>(userForm);
+            //var userForm = new UsuarioFormDTO
+            //{
+            //    UserName = userCredentials.Email,
+            //    Email = userCredentials.Email,
+            //    Run = usuarioCreate.Run,
+            //    Nombres = usuarioCreate.Nombres,
+            //    Apellidos = usuarioCreate.Apellidos,
+            //    FechaNacimiento = usuarioCreate.FechaNacimiento,
+            //    ComunaResidenciaId = usuarioCreate.ComunaResidenciaId,
+            //    EstadoRegistroId = usuarioCreate.EstadoRegistroId,
+            //    TipoTrabajoId = usuarioCreate.TipoTrabajoId,
+            //}; ------------
+            //var usuario = _mapper.Map<Usuario>(usuarioCreate);
+            //usuario.Email = userCredentials.Email;
+            //usuario.Password = userCredentials.Password;
+            var user = _mapper.Map<Usuario>(userForm);
+            user.UserName = userForm.Email;
+            var result = await _userManager.CreateAsync(user);
             if (result.Succeeded)
             {
                 return BuildToken(userCredentials);
