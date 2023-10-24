@@ -23,9 +23,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddScoped<IAutoService, AutoService>();
 builder.Services.AddScoped<IBusinessService, BusinessService>();
 builder.Services.AddScoped<IEncuestaService, EncuestaService>();
+builder.Services.AddScoped<IComunaService, ComunaService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -93,6 +93,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(builder => {
         builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
+
 });
 
 var app = builder.Build();
@@ -105,6 +106,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

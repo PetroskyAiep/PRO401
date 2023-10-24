@@ -37,8 +37,6 @@ namespace PRO401
             //.HasForeignKey<Encuesta>(m => m.UsuarioEmail)
             //.OnDelete(DeleteBehavior.Cascade);
         }
-
-        public DbSet<Auto> Autos { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<Comuna> Comuna { get; set; }
         public DbSet<Encuesta> Encuesta { get; set; }
